@@ -127,3 +127,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+event-log-reconstruction/input
+multivariate-anomaly-detection-for-event-logs-master/input/**

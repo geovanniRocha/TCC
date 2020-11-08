@@ -1,0 +1,1 @@
+python3 data_preprocessing/preprocess_variables.py -n data/bpi_2013.csv --nan_pct 0

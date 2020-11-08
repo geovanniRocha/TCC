@@ -51,7 +51,7 @@ from torchvision import transforms
 
 
 # In[3]:
-
+from utils.utils import getnanindex
 
 sys.path.insert(0, './../utils/')
 from utils import *
@@ -64,8 +64,8 @@ from models import *
 #Define parser
 #name = 'bpi_2012'
 #name = 'bpi_2013'
-#name = 'small_log'
-name = 'large_log'
+name = 'small_log'
+#name = 'large_log'
 n_pct = [0.3]
 for k in n_pct:
     print('\n')
@@ -79,7 +79,7 @@ for k in n_pct:
         'data_dir': '../data/',
         'data_file': name + '.csv',
         'nan_pct': k,
-        'input_dir': '../input/{0}/nan_pct_{1}/'.format(name,k),
+        'input_dir': '../input/{}/'.format(name),
         'batch_size' : 16,
         'epochs' : 50,
         'no_cuda' : False,
@@ -128,7 +128,7 @@ for k in n_pct:
         # In[9]:
 
 
-        preprocessed_data_name = os.path.join(args.input_dir, 'preprocessed_data_{0}_ver{1}.pkl'.format(args.nan_pct,str(count)))
+        preprocessed_data_name = os.path.join(args.input_dir, 'preprocessed_data_{0}.pkl'.format(args.nan_pct))
         with open(preprocessed_data_name, 'rb') as f:
             min_max_storage = pickle.load(f)
             complete_matrix_w_normalized_time_train = pickle.load(f)
@@ -152,7 +152,7 @@ for k in n_pct:
         # In[10]:
 
 
-        file_name = os.path.join(args.input_dir, 'parameters_{0}_ver{1}.pkl'.format(args.nan_pct,str(count)))
+        file_name = os.path.join(args.input_dir, 'parameters_{0}.pkl'.format(args.nan_pct))
         with open(file_name, 'rb') as f:
             most_frequent_activity = pickle.load(f)
             first_timestamp = pickle.load(f)
@@ -176,12 +176,17 @@ for k in n_pct:
         complete_matrix_w_normalized_time_trainLoader = torch.utils.data.DataLoader(complete_matrix_w_normalized_time_train,
                                                                                     batch_size=args.batch_size, shuffle=False,
                                                                                     num_workers=2)
+        complete_matrix_w_normalized_time_trainLoader.transform = transforms.Compose([transforms.ToTensor()])
+
         missing_matrix_w_normalized_time_trainLoader = torch.utils.data.DataLoader(missing_matrix_w_normalized_time_train,
                                                                                    batch_size=args.batch_size, shuffle=False,
                                                                                    num_workers=2)
+        missing_matrix_w_normalized_time_trainLoader.transform = transforms.Compose([transforms.ToTensor()])
+
         avai_matrix_trainLoader = torch.utils.data.DataLoader(avai_matrix_train,
                                                               batch_size=args.batch_size, shuffle=False,
                                                               num_workers=2)
+        avai_matrix_trainLoader.transform = transforms.Compose([transforms.ToTensor()])
 
 
         # ## Validate and test
@@ -189,10 +194,10 @@ for k in n_pct:
         # In[12]:
 
 
-        normalized_complete_df_name = os.path.join(args.input_dir, 'normalized_complete_df_{0}_ver{1}.csv'.format(args.nan_pct,str(count)))
+        normalized_complete_df_name = os.path.join(args.input_dir, 'normalized_complete_df_{0}.csv'.format(args.nan_pct))
         normalized_complete_df = pd.read_csv(normalized_complete_df_name)
 
-        normalized_missing_df_name = os.path.join(args.input_dir, 'normalized_missing_df_{0}_ver{1}.csv'.format(args.nan_pct,str(count)))
+        normalized_missing_df_name = os.path.join(args.input_dir, 'normalized_missing_df_{0}.csv'.format(args.nan_pct))
         normalized_missing_df = pd.read_csv(normalized_missing_df_name)
 
 

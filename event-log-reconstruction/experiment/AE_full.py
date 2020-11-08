@@ -68,7 +68,7 @@ parser = {
     'model_name': '',
     'data_dir': '../data/',
     'data_file': name + '.csv',
-    'nan_pct': 0.5,
+    'nan_pct': 0.3,
     'input_dir': '../input/{}/'.format(name),
     'batch_size' : 16,
     'epochs' : 200,

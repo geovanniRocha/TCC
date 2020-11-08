@@ -8,6 +8,9 @@ from dateutil.parser import parse
 from datetime import datetime
 import time
 
+sys.path.insert(0, './../utils/')
+from utils import *
+
 pd.options.mode.chained_assignment = None #to run loop quicker without warnings
 
 args_parser = argparse.ArgumentParser(description='induce missing data')
@@ -19,7 +22,7 @@ args_parser.add_argument('--val_pct', default=0.2, type=float, help='Validate pe
 args = args_parser.parse_args()
 args.data_file = args.name + '.csv'
 args.input_dir = '../input/{}/'.format(args.name)
-
+name = "small_bpi"
 #name = 'bpi_2012'
 #name = 'bpi_2013'
 #name = 'Road_Traffic_Fine_Management_Process'
@@ -49,7 +52,7 @@ with open(file_name, 'rb') as f:
     val_row_num = pickle.load(f)
     test_row_num = pickle.load(f)
     
-sys.path.insert(0, './../utils/')
+sys.path.insert(0, './utils/')
 from utils import *
 
 

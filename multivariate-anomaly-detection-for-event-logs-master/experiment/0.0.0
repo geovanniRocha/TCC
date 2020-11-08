@@ -1,0 +1,11 @@
+Collecting torch
+  Using cached torch-0.1.2.post2.tar.gz (128 kB)
+Requirement already satisfied: pyyaml in c:\users\nani\anaconda3\envs\qwe\lib\site-packages (from torch) (5.3.1)
+Building wheels for collected packages: torch
+  Building wheel for torch (setup.py): started
+  Building wheel for torch (setup.py): finished with status 'error'
+  Running setup.py clean for torch
+Failed to build torch
+Installing collected packages: torch
+    Running setup.py install for torch: started
+    Running setup.py install for torch: finished with status 'error'

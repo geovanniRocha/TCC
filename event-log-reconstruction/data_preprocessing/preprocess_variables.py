@@ -25,17 +25,17 @@ import time
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-get_ipython().run_line_magic('matplotlib', 'inline')
+# get_ipython().run_line_magic('matplotlib', 'inline')
 
 pd.options.mode.chained_assignment = None #to run loop quicker without warnings
 
 
 # In[3]:
 
-
+name = "small_bpi"
 #name = 'bpi_2012'
 #name = 'bpi_2013'
-name = 'small_log'
+#name = 'small_log'
 #name = 'large_log'
 
 args = {

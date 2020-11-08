@@ -31,11 +31,11 @@ pd.options.mode.chained_assignment = None #to run loop quicker without warnings
 
 # In[3]:
 
-
+name = "small_bpi"
 #name = 'bpi_2012'
 #name = 'bpi_2013'
-name = 'small_log'
-#name = 'large_log'
+#name = 'small_log'
+# name = 'large_log'
 
 '''
 nan_pct : 0.3, 0.35, 0.4, 0.5

@@ -36,11 +36,11 @@ class VAE(nn.Module):
             self.cuda()
 
         #initialize weights
-        nn.init.xavier_uniform(self.fc1.weight, gain=np.sqrt(2))
-        nn.init.xavier_uniform(self.fc21.weight, gain=np.sqrt(2))
-        nn.init.xavier_uniform(self.fc22.weight, gain=np.sqrt(2))
-        nn.init.xavier_uniform(self.fc3.weight, gain=np.sqrt(2))
-        nn.init.xavier_uniform(self.fc4.weight, gain=np.sqrt(2))
+        nn.init.xavier_uniform_(self.fc1.weight, gain=np.sqrt(2))
+        nn.init.xavier_uniform_(self.fc21.weight, gain=np.sqrt(2))
+        nn.init.xavier_uniform_(self.fc22.weight, gain=np.sqrt(2))
+        nn.init.xavier_uniform_(self.fc3.weight, gain=np.sqrt(2))
+        nn.init.xavier_uniform_(self.fc4.weight, gain=np.sqrt(2))
 
     def encode(self, x):
         #x --> fc1 --> relu --> fc21
@@ -102,11 +102,11 @@ class VAE_dropout(nn.Module):
             self.cuda()
 
         #initialize weights
-        nn.init.xavier_uniform(self.fc1.weight, gain=np.sqrt(2))
-        nn.init.xavier_uniform(self.fc21.weight, gain=np.sqrt(2))
-        nn.init.xavier_uniform(self.fc22.weight, gain=np.sqrt(2))
-        nn.init.xavier_uniform(self.fc3.weight, gain=np.sqrt(2))
-        nn.init.xavier_uniform(self.fc4.weight, gain=np.sqrt(2))
+        nn.init.xavier_uniform_(self.fc1.weight, gain=np.sqrt(2))
+        nn.init.xavier_uniform_(self.fc21.weight, gain=np.sqrt(2))
+        nn.init.xavier_uniform_(self.fc22.weight, gain=np.sqrt(2))
+        nn.init.xavier_uniform_(self.fc3.weight, gain=np.sqrt(2))
+        nn.init.xavier_uniform_(self.fc4.weight, gain=np.sqrt(2))
 
     def encode(self, x):
         # x --> dropout --> fc1 --> relu --> dropout --> fc2
@@ -157,8 +157,8 @@ class AE(nn.Module):
         self.sigmoid = nn.Sigmoid()
         
         #initialize weights
-        nn.init.xavier_uniform(self.fc1.weight, gain=np.sqrt(2))
-        nn.init.xavier_uniform(self.fc2.weight, gain=np.sqrt(2))
+        nn.init.xavier_uniform_(self.fc1.weight, gain=np.sqrt(2))
+        nn.init.xavier_uniform_(self.fc2.weight, gain=np.sqrt(2))
 
     def encode(self, x):
         # x --> fc1 --> fc2 --> sigmoid --> z
@@ -194,8 +194,8 @@ class AE_tanh(nn.Module):
         self.sigmoid = nn.Sigmoid()
         
         #initialize weights
-        nn.init.xavier_uniform(self.fc1.weight, gain=np.sqrt(2))
-        nn.init.xavier_uniform(self.fc2.weight, gain=np.sqrt(2))
+        nn.init.xavier_uniform_(self.fc1.weight, gain=np.sqrt(2))
+        nn.init.xavier_uniform_(self.fc2.weight, gain=np.sqrt(2))
 
     def encode(self, x):
         # x --> fc1 --> tanh --> fc2 --> tanh --> z
@@ -269,8 +269,8 @@ class EncoderRNN(nn.Module):
         self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True)
         
         #initialize weights
-        nn.init.xavier_uniform(self.lstm.weight_ih_l0, gain=np.sqrt(2))
-        nn.init.xavier_uniform(self.lstm.weight_hh_l0, gain=np.sqrt(2))
+        nn.init.xavier_uniform_(self.lstm.weight_ih_l0, gain=np.sqrt(2))
+        nn.init.xavier_uniform_(self.lstm.weight_hh_l0, gain=np.sqrt(2))
 
     def forward(self, input):
         tt = torch.cuda if self.isCuda else torch
@@ -294,9 +294,9 @@ class DecoderRNN(nn.Module):
         self.sigmoid = nn.Sigmoid()
         
         #initialize weights
-        nn.init.xavier_uniform(self.lstm.weight_ih_l0, gain=np.sqrt(2))
-        nn.init.xavier_uniform(self.lstm.weight_hh_l0, gain=np.sqrt(2))
-        nn.init.xavier_uniform(self.linear.weight, gain=np.sqrt(2))
+        nn.init.xavier_uniform_(self.lstm.weight_ih_l0, gain=np.sqrt(2))
+        nn.init.xavier_uniform_(self.lstm.weight_hh_l0, gain=np.sqrt(2))
+        nn.init.xavier_uniform_(self.linear.weight, gain=np.sqrt(2))
         
     def forward(self, encoded_input, hidden):
         tt = torch.cuda if self.isCuda else torch

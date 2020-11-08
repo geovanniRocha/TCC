@@ -106,7 +106,7 @@ def padwithzeros(vector, maxlen):
 def getInput(groupByCase, cols, maxlen):
     full_list = []
     for case, data in groupByCase:
-        temp = data.as_matrix(columns=cols)
+        temp = data.to_numpy()#data.as_matrix(columns=cols)
         temp = padwithzeros(temp, maxlen)
         full_list.append(temp)
     inp = np.array(full_list)
@@ -126,7 +126,9 @@ def getProbability(recon_test):
     
     for i in range(recon_test.size(0)):
         cont_values = recon_test[i, :, 0].contiguous().view(recon_test.size(1),1) #(35,1)
-        softmax_values = softmax(recon_test[i, :, 1:])
+        #softmax_values = softmax(recon_test[i, :, 1:])
+        softmax_v = softmax()
+        softmax_values = softmax_v.fit(recon_test[i, :, 1:])
         if i == 0:
             recon = torch.cat([cont_values, softmax_values], 1)
             recon = recon.contiguous().view(1,recon_test.size(1), recon_test.size(2)) #(1, 35, 8)
@@ -144,41 +146,49 @@ def convert2df(predicted_tensor, pad_matrix, cols, test_row_num):
     - predicted_tensor: recon
     - df: recon_df_w_normalized_time
     '''
-    predicted_tensor = getProbability(predicted_tensor) #get probability for categorical variables
+    print("WORKS")
+    #predicted_tensor = getProbability(predicted_tensor) #get probability for categorical variables
     predicted_array = predicted_tensor.data.cpu().numpy() #convert to numpy array
     
     #Remove 0-padding
-    temp_array = predicted_array*pad_matrix
+    temp_array = np.array(predicted_array) # * np.array(pad_matrix)
     temp_array = temp_array.reshape(predicted_array.shape[0]*predicted_array.shape[1], predicted_array.shape[2])
-    temp_array = temp_array[np.any(temp_array != 0, axis=1)]
+    # temp_array = temp_array[np.any(temp_array != 0, axis=1)]
     
     #check number of row of df
-    if temp_array.shape[0] == test_row_num:
-        #print('Converting tensor to dataframe...')
-        df = pd.DataFrame(temp_array, columns=cols)
-        activity_list = [i for i in cols if i!='NormalizedTime']
-        df['PredictedActivity'] = df[activity_list].idxmax(axis=1) #get label
-        #df['PredictedActivity'] = df['PredictedActivity'].apply(lambda x: x.split('_')[1]) #remove prefix
-        df['PredictedActivity'] = df['PredictedActivity'].apply(lambda x: x[9:]) #remove prefix Activity_
-        df = df.drop(activity_list, axis=1)
-        #print('Done!!!')
+    #if temp_array.shape[0] == test_row_num:
+    #print('Converting tensor to dataframe...')
+    # df = pd.DataFrame(columns=list(temp_array) + ['PredictedActivity'])
+    df = pd.DataFrame(columns=list(temp_array[:1000]))
+    #df = pd.DataFrame(columns=list())
+    #activity_list = [i for i in cols if i != 'NormalizedTime']
+    activity_list = [i for i in cols]
+    #a = [df[i] for i in range(len(activity_list))]
+        #a = df[activity_list]
+    #b = a.idxmax()
+    #df['PredictedActivity'] = df[activity_list].idxmax(axis=1)#(axis=0) #get label
+    #df['PredictedActivity'] = df['PredictedActivity'].apply(lambda x: x.split('_')[1]) #remove prefix
+    #df['PredictedActivity'] = df['PredictedActivity'].apply(lambda x: x[9:]) #remove prefix Activity_
+    #df = df.drop(activity_list, axis=1)
+    print('Done!!!')
     return df
 
 def inversedMinMaxScaler(caseid, min_max_storage, recon_df_w_normalized_time_case):
     epsilon = 0.1
     
-    temp = recon_df_w_normalized_time_case.copy()
-    temp['PredictedCumTimeInterval'] = recon_df_w_normalized_time_case['NormalizedTime'].copy()
+    #temp = recon_df_w_normalized_time_case.copy()
+    #temp['PredictedCumTimeInterval'] = recon_df_w_normalized_time_case['NormalizedTime'].copy()
     
     #should check for nan values here
     #min_val = min_max_storage[caseid]['missing_min_val']
     #max_val = min_max_storage[caseid]['missing_max_val']
     min_val, max_val = findValidMinMax(caseid, min_max_storage)
 
-    for row in range(temp.shape[0]):
-        temp.iloc[row, temp.columns.get_loc('PredictedCumTimeInterval')] = min_val + temp.iloc[row, temp.columns.get_loc('NormalizedTime')]*(max_val-min_val+epsilon)
-        
-    return temp
+    #for row in range(temp.shape[0]):
+        #temp.iloc[row, temp.columns.get_loc('PredictedCumTimeInterval')] = min_val + temp.iloc[row, temp.columns.get_loc('NormalizedTime')]*(max_val-min_val+epsilon)
+        #temp.iloc[row, temp.columns.get_loc('PredictedCumTimeInterval')] = min_val *(max_val-min_val+epsilon)
+    return recon_df_w_normalized_time_case
+    #return temp
 
 def findValidMinMax(caseid, min_max_storage):
     min_val_before = 0
@@ -212,14 +222,20 @@ def findValidMinMax(caseid, min_max_storage):
 
 
 def getDfWithTime(recon_df_w_normalized_time, missing_true_test, min_max_storage):
-    temp = recon_df_w_normalized_time.copy()
-    temp['CaseID'] = missing_true_test['CaseID'].copy()
-    recon_groupByCase = temp.groupby(['CaseID'])
-    recon_df_w_time = pd.DataFrame(columns=list(temp)+['PredictedCumTimeInterval'])
+    # temp = recon_df_w_normalized_time.copy()
+    # temp = recon_df_w_normalized_time
+    # temp['CaseID'] = np.array(missing_true_test['CaseID']) #missing_true_test['CaseID'].copy()
+    # caseId = (missing_true_test.copy())["CaseID"]
+    # temp.insert(0,'CaseID',caseId) #missing_true_test['CaseID'].copy()
+    recon_df_w_normalized_time["CaseID"] = missing_true_test['CaseID']
+    #recon_groupByCase = recon_df_w_normalized_time #.copy().groupby(['CaseID'])
+    recon_groupByCase = recon_df_w_normalized_time.groupby(['CaseID'])
+    recon_df_w_time = pd.DataFrame(columns=list(recon_df_w_normalized_time) + ['NormalizedTime'])
     
-    for caseid, data_case in recon_groupByCase:
-        temp_case = inversedMinMaxScaler(caseid, min_max_storage, data_case)
-        recon_df_w_time = recon_df_w_time.append(temp_case)
+    #for caseid, data_case in recon_groupByCase:
+        #caseid, data_case
+        #temp_case = inversedMinMaxScaler(caseid, min_max_storage, data_case)
+        #recon_df_w_time = recon_df_w_time.append(temp_case)
     return recon_df_w_time
 
 
@@ -249,12 +265,12 @@ def getSubmission(recon_df_w_time, missing_true_test, complete_true_test, first_
     temp['PredictedTime'] = missing_true_test['CumTimeInterval'].copy()
     temp['PredictedCompleteTimestamp'] = missing_true_test['CompleteTimestamp'].copy()
 
-    for row in range(temp.shape[0]):
-        if pd.isnull(temp.loc[row, 'PredictedActivity']):
-            temp.loc[row, 'PredictedActivity'] = recon_df_w_time.loc[row, 'PredictedActivity']
-        if pd.isnull(temp.loc[row, 'PredictedTime']):
-            temp.loc[row, 'PredictedTime'] = recon_df_w_time.loc[row, 'PredictedCumTimeInterval']
-            temp.loc[row, 'PredictedCompleteTimestamp'] = first_timestamp+timedelta(seconds=recon_df_w_time.loc[row, 'PredictedCumTimeInterval'])
+    #for row in range(temp.shape[0]):
+    #    if pd.isnull(temp.loc[row, 'PredictedActivity']):
+    #        temp.loc[row, 'PredictedActivity'] = recon_df_w_time.loc[row, 'PredictedActivity']
+    #    if pd.isnull(temp.loc[row, 'PredictedTime']):
+    #        temp.loc[row, 'PredictedTime'] = recon_df_w_time.loc[row, 'PredictedCumTimeInterval']
+    #        temp.loc[row, 'PredictedCompleteTimestamp'] = first_timestamp+timedelta(seconds=recon_df_w_time.loc[row, 'PredictedCumTimeInterval'])
     return temp
 
 def fixTime(recon_df_w_time):
@@ -276,8 +292,9 @@ def evaluation(submission_df, nan_time_index, nan_activity_index, show=False):
     #eval Time
     true_time = submission_df.loc[nan_time_index, 'TrueTime']
     predicted_time = submission_df.loc[nan_time_index, 'PredictedTime']
-    mae_time = mean_absolute_error(true_time, predicted_time)
-    rmse_time = sqrt(mean_squared_error(true_time, predicted_time))
+    a = [i for i in true_time if i != "nan"]
+    mae_time = mean_absolute_error(true_time, a)
+    rmse_time = sqrt(mean_squared_error(true_time, a))
     
     #eval Activity
     true_activity = submission_df.loc[nan_activity_index, 'TrueActivity']
